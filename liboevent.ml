@@ -5,7 +5,7 @@
 (* LICENCE for details.                                                *)
 (***********************************************************************)
 
-(* $Id: libevent.ml,v 1.1 2004/12/18 21:58:25 maas Exp $ *)
+(* $Id: liboevent.ml,v 1.1 2009-11-26 08:49:02 maas Exp $ *)
 type event
 
 type event_flags =
@@ -20,6 +20,13 @@ let int_of_event_type = function
   | WRITE -> 0x04
   | SIGNAL -> 0x08
 
+let event_type_of_int = function
+  | 1 -> TIMEOUT
+  | 2 -> READ
+  | 4 -> WRITE
+  | 8 -> SIGNAL
+  | _ -> raise (Invalid_argument "event_type")
+
 type event_callback = Unix.file_descr -> event_flags -> unit
 
 (* Use an internal hashtable to store the ocaml callbacks with the
@@ -28,7 +35,7 @@ let table = Hashtbl.create 0
 
 (* Called by the c-stub, locate, and call the ocaml callback *)
 let event_cb event_id fd etype =
-  (Hashtbl.find table event_id) fd etype 
+  (Hashtbl.find table event_id) fd (event_type_of_int etype)
   
 (* Create an event *)
 external create : unit -> event = "oc_create_event"

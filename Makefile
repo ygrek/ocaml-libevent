@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.12 2004/12/21 19:15:14 maas Exp $ 
+# $Id: Makefile,v 1.2 2009-11-26 08:49:02 maas Exp $ 
 #
 
 # Change this to match your libevent installation.
@@ -7,14 +7,14 @@ EVENT_LIB=-levent
 EVENT_LIBDIR=/usr/local/lib
 EVENT_INCDIR=/usr/local/include
 
-NAME=libevent
-OBJECTS=libevent.cmo
+NAME=liboevent
+OBJECTS=liboevent.cmo
 XOBJECTS=$(OBJECTS:.cmo=.cmx)
 C_OBJECTS=event_stubs.o
 
 ARCHIVE=$(NAME).cma
 XARCHIVE=$(ARCHIVE:.cma=.cmxa)
-CARCHIVE_NAME=mlevent
+CARCHIVE_NAME=mloevent
 CARCHIVE=lib$(CARCHIVE_NAME).a
 
 # Flags for the C compiler.

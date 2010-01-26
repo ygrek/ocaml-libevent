@@ -5,13 +5,14 @@
 /* See LICENCE for details.                                             */
 /************************************************************************/
 
-/* $Id: event_stubs.c,v 1.10 2004/12/18 21:58:25 maas Exp $ */
+/* $Id: event_stubs.c,v 1.2 2009-11-26 08:41:10 maas Exp $ */
 
 /* Stub code to interface Ocaml with libevent */
 
 #include <sys/time.h>
 #include <stdlib.h>
 #include <event.h>
+#include <string.h>
 
 #include <caml/mlvalues.h>
 #include <caml/custom.h>
@@ -20,7 +21,7 @@
 #include <caml/callback.h>
 #include <caml/fail.h>
 
-#define struct_event_val(v) ((struct event*) Data_custom_val(v))
+#define struct_event_val(v) (*(struct event**) Data_custom_val(v))
 #define Is_some(v) (Is_block(v))
 
 static value * event_cb_closure = NULL;
@@ -33,9 +34,8 @@ struct_event_finalize(value ve)
 {
   struct event *ev = struct_event_val(ve);
   
-  /* This means that event_set is called. We can assume that there */
-  if(event_initialized(ev)) {
-    /* */
+  if (event_initialized(ev)) {
+    event_del(ev);
   }
 
   stat_free(struct_event_val(ve));
@@ -90,8 +90,11 @@ oc_create_event(value unit)
 {
   CAMLparam0();
   CAMLlocal1(ve);
+  struct event* ev = caml_stat_alloc(sizeof(struct event));
+  memset(ev, 0, sizeof(*ev));
 
-  ve = alloc_custom(&struct_event_ops, sizeof(struct event), 0, 1);
+  ve = alloc_custom(&struct_event_ops, sizeof(struct event*), 0, 1);
+  *(struct event**) Data_custom_val(ve) = ev;
 
   CAMLreturn(ve);
 }

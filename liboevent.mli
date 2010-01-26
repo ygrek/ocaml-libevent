@@ -2,9 +2,9 @@
 (* The Ocaml Libevent library                                          *)
 (*                                                                     *)
 (* Copyright 2002, 2003, 2004 Maas-Maarten Zeeman. All rights          *) 
-(* reserved. See LICENCE for details.                                  *)       (***********************************************************************)
+(* reserved. See LICENCE for details.                                  *)       
+(***********************************************************************)
 
-(* $Id: libevent.mli,v 1.2 2004/12/21 19:15:14 maas Exp $ *)
 
 (** The Ocaml Event library provides an interface to the event API.
 
