@@ -20,14 +20,13 @@
 #include <caml/memory.h>
 #include <caml/callback.h>
 #include <caml/fail.h>
+#include <caml/unixsupport.h>
+#include <caml/signals.h>
 
 #define struct_event_val(v) (*(struct event**) Data_custom_val(v))
 #define Is_some(v) (Is_block(v))
 
 static value * event_cb_closure = NULL;
-
-/* use the error function from the Unix library */
-extern void uerror (char * cmdname, value arg) Noreturn;
 
 static void
 struct_event_finalize(value ve) 
@@ -73,8 +72,10 @@ static struct custom_operations struct_event_ops = {
 static void
 event_cb(int fd, short type, void *arg) 
 {
+  caml_leave_blocking_section();
   callback3(*event_cb_closure, 
 	    Val_long((long) arg), Val_int(fd), Val_int(type));
+  caml_enter_blocking_section();
 }
 
 static void
@@ -140,7 +141,7 @@ oc_event_add(value vevent, value vfloat_option)
   } 
   
   if((0 != event_add(event, tv))) {
-    uerror("event_add", vevent);
+    uerror("event_add", Nothing);
   }
 
   CAMLreturn(Val_unit);
@@ -180,10 +181,13 @@ oc_event_loop(value vloop_flag)
 {
   CAMLparam1(vloop_flag);
 
+  caml_enter_blocking_section();
   if((-1 == event_loop(Int_val(vloop_flag)))) {
-    uerror("event_dispatch", vloop_flag);
+    caml_leave_blocking_section();
+    uerror("event_loop", Nothing);
   }
-  
+  caml_leave_blocking_section();
+
   CAMLreturn(Val_unit);
 }
 
@@ -193,9 +197,12 @@ oc_event_dispatch(value unit)
 {
   CAMLparam1(unit);
 
+  caml_enter_blocking_section();
   if((-1 == event_dispatch())) {
-    uerror("event_dispatch", unit);
+    caml_leave_blocking_section();
+    uerror("event_dispatch", Nothing);
   }
+  caml_leave_blocking_section();
 
   CAMLreturn(Val_unit);
 }
@@ -207,7 +214,7 @@ CAMLprim value
 oc_event_init(value unit)
 {
   CAMLparam1(unit);
-  
+
   /* setup the event callback closure if needed */
   if(event_cb_closure == NULL) {
     event_cb_closure = caml_named_value("event_cb");

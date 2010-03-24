@@ -18,7 +18,7 @@ CARCHIVE_NAME=mloevent
 CARCHIVE=lib$(CARCHIVE_NAME).a
 
 # Flags for the C compiler.
-CFLAGS=-DFULL_UNROLL -O2 -I$(EVENT_INCDIR)
+CFLAGS=-DFULL_UNROLL -Wall -O2 -I$(EVENT_INCDIR)
 
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
@@ -51,12 +51,12 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 .PHONY: install
 install: all
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME).a"; }; \
-	$(OCAMLFIND) install $(NAME) META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
+	$(OCAMLFIND) install event META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
 
 .PHONY: uninstall
 uninstall:
-	$(OCAMLFIND) remove $(NAME)
+	$(OCAMLFIND) remove event
 
 ## Documentation
 .PHONY: doc

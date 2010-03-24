@@ -84,5 +84,6 @@ type loop_flags =
 val loop : loop_flags -> unit
 (** Provides an interface for single pass execution of pending events *)
 
-
+val init : unit -> unit
+(** Initialize libevent. Done automatically at startup, may be needed after fork *)
 
