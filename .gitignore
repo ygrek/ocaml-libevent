@@ -1,0 +1,7 @@
+*.so
+*.[ao]
+*.cm[oiax]
+*.cmxa
+*.lib
+*.obj
+depend

@@ -7,6 +7,7 @@
 
 (* $Id: liboevent.ml,v 1.1 2009-11-26 08:49:02 maas Exp $ *)
 type event
+type event_base
 
 type event_flags =
     TIMEOUT 
@@ -80,7 +81,7 @@ let set_signal event signal persist (cb : event_callback) =
   cset_int event signal flag
 
 (* Add an event *)
-external add : event -> float option -> unit = "oc_event_add"
+external add : event_base -> event -> float option -> unit = "oc_event_base_add"
 
 (* Del an event  *)
 external cdel : event -> unit = "oc_event_del"
@@ -93,16 +94,27 @@ let del event =
 external pending : event -> event_flags list -> bool = "oc_event_pending"
 
 (* Process events *)
-external dispatch : unit -> unit = "oc_event_dispatch"
+external dispatch : event_base -> unit = "oc_event_base_dispatch"
 
 type loop_flags = ONCE | NONBLOCK
-external loop : loop_flags -> unit = "oc_event_loop"
+external loop : event_base -> loop_flags -> unit = "oc_event_base_loop"
 
-(* Initialize the event library *)
-external init : unit -> unit = "oc_event_init"
-let _ = 
-  Callback.register "event_cb" event_cb;
-  init ()
+external init : unit -> event_base = "oc_event_base_init"
+external reinit : event_base -> unit = "oc_event_base_reinit"
+external free : event_base -> unit = "oc_event_base_free"
 
+let () = 
+  Callback.register "event_cb" event_cb
 
+(** Compatibility *)
+module Global = struct
+
+let base = init ()
+let init () = reinit base
+
+let add = add base
+let dispatch () = dispatch base
+let loop = loop base
+
+end
 

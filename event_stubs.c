@@ -26,7 +26,17 @@
 #define struct_event_val(v) (*(struct event**) Data_custom_val(v))
 #define Is_some(v) (Is_block(v))
 
+/* FIXME use custom block */
+#define struct_event_base_val(v) (struct event_base*)(v)
+#define Val_struct_event_base(base) ((value)(base))
+
 static value * event_cb_closure = NULL;
+
+/* FIXME use dedicated exception */
+static void raise_error(char const* str, char const* arg)
+{
+  uerror((char*)str, NULL == arg ? Nothing : caml_copy_string(arg));
+}
 
 static void
 struct_event_finalize(value ve) 
@@ -128,20 +138,25 @@ oc_event_set(value vevent, value fd, value vevent_flag)
 } 
 
 CAMLprim value
-oc_event_add(value vevent, value vfloat_option) 
+oc_event_add(value vbase, value vevent, value vfloat_option) 
 {
-  CAMLparam2(vevent, vfloat_option);
-  struct event *event = struct_event_val(vevent); 
+  CAMLparam3(vbase, vevent, vfloat_option);
+  struct event *event = struct_event_val(vevent);
+  struct event_base* base = struct_event_base_val(vbase);
   struct timeval timeval;
   struct timeval *tv = NULL;
+
+  if (0 != event_base_set(base, event)) {
+    raise_error("event_add", "event_base_set");
+  }
 
   if Is_some(vfloat_option) {
     set_struct_timeval(&timeval, Field(vfloat_option, 0));
     tv = &timeval;
-  } 
-  
-  if((0 != event_add(event, tv))) {
-    uerror("event_add", Nothing);
+  }
+
+  if (0 != event_add(event, tv)) {
+    raise_error("event_add", "event_add");
   }
 
   CAMLreturn(Val_unit);
@@ -177,14 +192,15 @@ oc_event_pending(value vevent, value vtype, value vfloat_option)
 }
 
 CAMLprim value
-oc_event_loop(value vloop_flag)
+oc_event_base_loop(value vbase, value vloop_flag)
 {
-  CAMLparam1(vloop_flag);
+  CAMLparam2(vbase,vloop_flag);
+  struct event_base* base = struct_event_base_val(vbase);
 
   caml_enter_blocking_section();
-  if((-1 == event_loop(Int_val(vloop_flag)))) {
+  if((-1 == event_base_loop(base,Int_val(vloop_flag)))) {
     caml_leave_blocking_section();
-    uerror("event_loop", Nothing);
+    raise_error("event_loop", NULL);
   }
   caml_leave_blocking_section();
 
@@ -193,14 +209,15 @@ oc_event_loop(value vloop_flag)
 
 
 CAMLprim value
-oc_event_dispatch(value unit) 
+oc_event_base_dispatch(value vbase) 
 {
-  CAMLparam1(unit);
+  CAMLparam1(vbase);
+  struct event_base* base = struct_event_base_val(vbase);
 
   caml_enter_blocking_section();
-  if((-1 == event_dispatch())) {
+  if((-1 == event_base_dispatch(base))) {
     caml_leave_blocking_section();
-    uerror("event_dispatch", Nothing);
+    raise_error("event_dispatch", NULL);
   }
   caml_leave_blocking_section();
 
@@ -208,23 +225,51 @@ oc_event_dispatch(value unit)
 }
 
 /*
- * Initialize the event library
+ * Initialize event base
  */
 CAMLprim value
-oc_event_init(value unit)
+oc_event_base_init(value unit)
 {
   CAMLparam1(unit);
+  struct event_base* base = NULL;
 
   /* setup the event callback closure if needed */
   if(event_cb_closure == NULL) {
     event_cb_closure = caml_named_value("event_cb");
     if(event_cb_closure == NULL) {
-      invalid_argument("Callback event_cv not initialized.");
+      invalid_argument("Callback event_cb not initialized.");
     }
   }
 
-  /* and don't forget to initialize libevent */
-  event_init();
+  base = event_base_new();
+  if (!base) {
+    raise_error("event_base_init", NULL);
+  }
+
+  CAMLreturn(Val_struct_event_base(base));
+}
+
+CAMLprim value
+oc_event_base_reinit(value vbase)
+{
+  CAMLparam1(vbase);
+  struct event_base* base = struct_event_base_val(vbase);
+
+  if (0 != event_reinit(base)) {
+    raise_error("event_base_reinit", NULL);
+  }
 
   CAMLreturn(Val_unit);
 }
+
+CAMLprim value
+oc_event_base_free(value vbase)
+{
+  CAMLparam1(vbase);
+  struct event_base* base = struct_event_base_val(vbase);
+
+  event_base_free(base);
+
+  CAMLreturn(Val_unit);
+}
+

@@ -25,6 +25,9 @@
 (** The type of events *)
 type event
 
+(** The type of event base *)
+type event_base
+
 (** The possible event types *)
 type event_flags = 
     TIMEOUT (** A timeout occurred. *)
@@ -58,7 +61,7 @@ val set_signal : event ->
     flag [persist] makes an event persistent unit {!Libevent.del} is
     called. *)
 
-val add : event -> float option -> unit
+val add : event_base -> event -> float option -> unit
 (** [add event timeout] adds the [event] and schedules the execution
     of the function specified with {!Libevent.set}, or in at least the
     time specified in the [timeout]. If [timeout] is [None], no
@@ -68,22 +71,41 @@ val add : event -> float option -> unit
 val del : event -> unit
 (** Del the event *)
 
-val pending : event -> event_flags list -> bool 
+(* Not finished *)
+(* val pending : event -> event_flags list -> bool  *)
 
 (** {5 Process Events} *)
 
-val dispatch : unit -> unit
+val dispatch : event_base -> unit
 (** In order to process events, an application needs to call dispatch. This 
  *  function only returns on error, and should replace the event core of the 
  *  application
  *)
 
 type loop_flags =
-    ONCE            
-  | NONBLOCK        
-val loop : loop_flags -> unit
+    ONCE
+  | NONBLOCK
+val loop : event_base -> loop_flags -> unit
 (** Provides an interface for single pass execution of pending events *)
 
+val init : unit -> event_base
+(** Initialize event base. *)
+
+val reinit : event_base -> unit
+(** Reinitialize event base (use after fork) *)
+
+val free : event_base -> unit
+(** destroy event base *)
+
+(** Compatibility *)
+module Global : sig
+
+val base : event_base
 val init : unit -> unit
-(** Initialize libevent. Done automatically at startup, may be needed after fork *)
+
+val add : event -> float option -> unit
+val dispatch : unit -> unit
+val loop : loop_flags -> unit
+
+end
 
