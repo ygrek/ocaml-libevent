@@ -138,7 +138,7 @@ oc_event_set(value vevent, value fd, value vevent_flag)
 } 
 
 CAMLprim value
-oc_event_add(value vbase, value vevent, value vfloat_option) 
+oc_event_base_add(value vbase, value vevent, value vfloat_option) 
 {
   CAMLparam3(vbase, vevent, vfloat_option);
   struct event *event = struct_event_val(vevent);
