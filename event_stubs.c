@@ -137,6 +137,18 @@ oc_event_set(value vevent, value fd, value vevent_flag)
   CAMLreturn(Val_unit); 
 } 
 
+CAMLprim value 
+oc_event_set_timer(value vevent)
+{ 
+  CAMLparam1(vevent); 
+
+  struct event *event = struct_event_val(vevent); 
+
+  evtimer_set(event, &event_cb, event); 
+
+  CAMLreturn(Val_unit); 
+}
+
 CAMLprim value
 oc_event_base_add(value vbase, value vevent, value vfloat_option) 
 {

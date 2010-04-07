@@ -55,6 +55,8 @@ val set : event ->
     flag [persist] makes an event persitent until {!Libevent.del} is
     called. *)
 
+val set_timer : event -> (unit -> unit) -> unit
+
 val set_signal : event ->
   signal:int -> persist:bool -> event_callback -> unit
 (** [set_signal event signal persist callback] initializes the event. The

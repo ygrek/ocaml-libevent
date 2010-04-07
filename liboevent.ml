@@ -52,6 +52,7 @@ external fd : event -> Unix.file_descr = "oc_event_fd"
 
 (* Set an event (not exported) *)
 external cset_fd : event -> Unix.file_descr -> int -> unit = "oc_event_set"
+external cset_timer : event -> unit = "oc_event_set_timer"
 external cset_int : event -> int -> int -> unit = "oc_event_set"
 
 (* Event set *)
@@ -69,6 +70,10 @@ let set event fd etype persist (cb : event_callback) =
   in
   Hashtbl.add table (event_id event) cb;
   cset_fd event fd flag
+
+let set_timer event (cb : unit -> unit) =
+  Hashtbl.add table (event_id event) (fun _ _ -> cb ());
+  cset_timer event
 
 let set_signal event signal persist (cb : event_callback) =
   let signal_flag = (int_of_event_type SIGNAL) in
