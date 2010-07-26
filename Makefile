@@ -8,7 +8,7 @@ EVENT_LIBDIR=/usr/local/lib
 EVENT_INCDIR=/usr/local/include
 
 NAME=liboevent
-OBJECTS=liboevent.cmo
+OBJECTS=libevent.cmo
 XOBJECTS=$(OBJECTS:.cmo=.cmx)
 C_OBJECTS=event_stubs.o
 
@@ -51,7 +51,7 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 .PHONY: install
 install: all
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME).a"; }; \
-	$(OCAMLFIND) install event META $(NAME).cmi $(NAME).mli $(ARCHIVE) \
+	$(OCAMLFIND) install event META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
 
 .PHONY: uninstall

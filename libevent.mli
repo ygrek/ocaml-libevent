@@ -35,13 +35,10 @@ type event_flags =
   | WRITE   (** A write operation is possible. *)
   | SIGNAL  (** A signal occurred. *)
 
-type event_callback = Unix.file_descr -> event_flags -> unit
+type event_callback = event -> Unix.file_descr -> event_flags -> unit
 (** The type of event callbacks *)
 
 (** {5 Basic Libevent Operations} *)
-
-val create : event_base -> event
-(** Create a new empty event for use with event_base *)
 
 val fd : event -> Unix.file_descr
 (** [fd event] returns the file descriptor associated with the event *)
@@ -49,21 +46,20 @@ val fd : event -> Unix.file_descr
 val signal : event -> int
 (** [signal event] returns the signal associated with the event *)
 
-val set : event -> 
-  Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> unit
-(** [set event fd type persist callback] initializes the event. The
+val create : event_base -> 
+  Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> event
+(** [create event_base fd type persist callback] initializes the event. The
     flag [persist] makes an event persitent until {!Libevent.del} is
-    called. Event can be [set] multiple times, only the last one will be active *)
+    called. *)
 
-val set_timer : event -> persist:bool -> (unit -> unit) -> unit
-(** [set_timer event persist callback] initializes timer. Flag [persist]
+val create_timer : event_base -> persist:bool -> (event -> unit) -> event
+(** [create_timer event_base persist callback] initializes timer. Flag [persist]
     makes the timer periodic, until {!Libevent.del} is called. *)
 
-val set_signal : event ->
-  signal:int -> persist:bool -> event_callback -> unit
-(** [set_signal event signal persist callback] initializes the event. The
-    flag [persist] makes an event persistent unit {!Libevent.del} is
-    called. *)
+val create_signal : event_base ->
+  signal:int -> persist:bool -> event_callback -> event
+(** [create_signal event_base signal persist callback] initializes the signal handler. 
+    Theflag [persist] makes an event persistent unit {!Libevent.del} is called. *)
 
 val add : event -> float option -> unit
 (** [add event timeout] adds the [event] and schedules the execution
@@ -108,7 +104,7 @@ module Global : sig
 val base : event_base
 val init : unit -> unit
 
-val create : unit -> event
+val create : Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> event
 val dispatch : unit -> unit
 val loop : loop_flags -> unit
 

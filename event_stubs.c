@@ -97,26 +97,6 @@ set_struct_timeval(struct timeval *tv, value vfloat)
 }
 
 CAMLprim value
-oc_create_event(value vbase) 
-{
-  CAMLparam1(vbase);
-  CAMLlocal1(ve);
-  struct event* ev = caml_stat_alloc(sizeof(struct event));
-  memset(ev, 0, sizeof(*ev));
-
-  if (0 != event_base_set(struct_event_base_val(vbase), ev)) 
-  {
-    caml_stat_free(ev);
-    raise_error("event_create", "event_base_set");
-  }
-
-  ve = caml_alloc_custom(&struct_event_ops, sizeof(struct event*), 0, 1);
-  *(struct event**) Data_custom_val(ve) = ev;
-
-  CAMLreturn(ve);
-}
-
-CAMLprim value
 oc_event_id(value vevent)
 {
   CAMLparam0();
@@ -131,16 +111,25 @@ oc_event_fd(value vevent)
 }
 
 CAMLprim value 
-oc_event_set(value vevent, value fd, value vevent_flag) 
+oc_event_create(value vbase, value fd, value vflag) 
 { 
-  CAMLparam3(vevent, fd, vevent_flag); 
+  CAMLparam3(vbase, fd, vflag); 
+  CAMLlocal1(ve);
 
-  struct event *event = struct_event_val(vevent); 
+  struct event* ev = caml_stat_alloc(sizeof(struct event));
+  /*memset(ev, 0, sizeof(*ev));*/
+  event_set(ev, Int_val(fd), Int_val(vflag), &event_cb, ev); 
 
-  event_set(event, Int_val(fd), Int_val(vevent_flag), 
-	    &event_cb, event); 
+  if (0 != event_base_set(struct_event_base_val(vbase), ev))
+  {
+    caml_stat_free(ev);
+    raise_error("event_create", "event_base_set");
+  }
 
-  CAMLreturn(Val_unit); 
+  ve = caml_alloc_custom(&struct_event_ops, sizeof(struct event*), 0, 1);
+  *(struct event**) Data_custom_val(ve) = ev;
+
+  CAMLreturn(ve);
 } 
 
 CAMLprim value

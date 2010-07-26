@@ -29,7 +29,7 @@ let event_type_of_int = function
   | 8 -> SIGNAL
   | n -> raise (Invalid_argument (Printf.sprintf "event_type %d" n))
 
-type event_callback = Unix.file_descr -> event_flags -> unit
+type event_callback = event -> Unix.file_descr -> event_flags -> unit
 
 (* Use an internal hashtable to store the ocaml callbacks with the
    event *)
@@ -37,10 +37,8 @@ let table = Hashtbl.create 0
 
 (* Called by the c-stub, locate, and call the ocaml callback *)
 let event_cb event_id fd etype =
-  (Hashtbl.find table event_id) fd (event_type_of_int etype)
-
-(* Create an event *)
-external create : event_base -> event = "oc_create_event"
+  let (event,cb) = Hashtbl.find table event_id in
+  cb event fd (event_type_of_int etype)
 
 (* Return the id of an event *)
 external event_id : event -> int = "oc_event_id"
@@ -52,30 +50,33 @@ external signal : event -> int = "oc_event_fd"
 external fd : event -> Unix.file_descr = "oc_event_fd"
 
 (* Set an event (not exported) *)
-external cset_fd : event -> Unix.file_descr -> int -> unit = "oc_event_set"
-external cset_int : event -> int -> int -> unit = "oc_event_set"
+external cset_fd : event_base -> Unix.file_descr -> int -> event = "oc_event_create"
+external cset_int : event_base -> int -> int -> event = "oc_event_create"
 
 let persist_flag = function true -> 0x10 | false -> 0
 
-(* Event set *)
-let set event fd etype persist (cb : event_callback) =
+(* Create events *)
+let create event_base fd etype persist (cb : event_callback) =
   let rec int_of_event_type_list flag = function
       h::t -> int_of_event_type_list (flag lor (int_of_event_type h)) t
     | [] -> flag
   in
   let flag = int_of_event_type_list (persist_flag persist) etype in
-  Hashtbl.replace table (event_id event) cb;
-  cset_fd event fd flag
+  let event = cset_fd event_base fd flag in
+  Hashtbl.add table (event_id event) (event,cb);
+  event
 
-let set_timer event persist (cb : unit -> unit) =
+let create_timer event_base persist (cb : event -> unit) =
   let flag = persist_flag persist in
-  Hashtbl.replace table (event_id event) (fun _ _ -> cb ());
-  cset_int event (-1) flag
+  let event = cset_int event_base (-1) flag in
+  Hashtbl.add table (event_id event) (event, (fun e _ _ -> cb e));
+  event
 
-let set_signal event signal persist (cb : event_callback) =
+let create_signal event_base signal persist (cb : event_callback) =
   let flag = (int_of_event_type SIGNAL) lor (persist_flag persist) in
-  Hashtbl.replace table (event_id event) cb;
-  cset_int event signal flag
+  let event = cset_int event_base signal flag in
+  Hashtbl.add table (event_id event) (event,cb);
+  event
 
 (* Add an event *)
 external add : event -> float option -> unit = "oc_event_add"
@@ -109,7 +110,7 @@ module Global = struct
 let base = init ()
 let init () = reinit base
 
-let create () = create base
+let create = create base
 let dispatch () = dispatch base
 let loop = loop base
 
