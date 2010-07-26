@@ -40,8 +40,8 @@ type event_callback = Unix.file_descr -> event_flags -> unit
 
 (** {5 Basic Libevent Operations} *)
 
-val create : unit -> event
-(** Create a new empty event *)
+val create : event_base -> event
+(** Create a new empty event for use with event_base *)
 
 val fd : event -> Unix.file_descr
 (** [fd event] returns the file descriptor associated with the event *)
@@ -53,9 +53,11 @@ val set : event ->
   Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> unit
 (** [set event fd type persist callback] initializes the event. The
     flag [persist] makes an event persitent until {!Libevent.del} is
-    called. *)
+    called. Event can be [set] multiple times, only the last one will be active *)
 
-val set_timer : event -> (unit -> unit) -> unit
+val set_timer : event -> persist:bool -> (unit -> unit) -> unit
+(** [set_timer event persist callback] initializes timer. Flag [persist]
+    makes the timer periodic, until {!Libevent.del} is called. *)
 
 val set_signal : event ->
   signal:int -> persist:bool -> event_callback -> unit
@@ -63,15 +65,16 @@ val set_signal : event ->
     flag [persist] makes an event persistent unit {!Libevent.del} is
     called. *)
 
-val add : event_base -> event -> float option -> unit
+val add : event -> float option -> unit
 (** [add event timeout] adds the [event] and schedules the execution
     of the function specified with {!Libevent.set}, or in at least the
     time specified in the [timeout]. If [timeout] is [None], no
     timeout occures, and the function will only be called if a
-    matching event occurs on the file descriptor. *)
+    matching event occurs on the file descriptor. Addition of the already 
+    scheduled (added) event will reschedule the timeout. *)
 
 val del : event -> unit
-(** Del the event *)
+(** Delete the event *)
 
 (* Not finished *)
 (* val pending : event -> event_flags list -> bool  *)
@@ -105,7 +108,7 @@ module Global : sig
 val base : event_base
 val init : unit -> unit
 
-val add : event -> float option -> unit
+val create : unit -> event
 val dispatch : unit -> unit
 val loop : loop_flags -> unit
 
