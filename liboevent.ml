@@ -25,8 +25,9 @@ let event_type_of_int = function
   | 1 -> TIMEOUT
   | 2 -> READ
   | 4 -> WRITE
+  | 6 -> READ (* READ|WRITE *)
   | 8 -> SIGNAL
-  | _ -> raise (Invalid_argument "event_type")
+  | n -> raise (Invalid_argument (Printf.sprintf "event_type %d" n))
 
 type event_callback = Unix.file_descr -> event_flags -> unit
 
