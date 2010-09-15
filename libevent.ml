@@ -52,33 +52,33 @@ external signal : event -> int = "oc_event_fd"
 external fd : event -> Unix.file_descr = "oc_event_fd"
 
 (* Set an event (not exported) *)
-external cset_fd : event -> Unix.file_descr -> int -> unit = "oc_event_set"
-external cset_int : event -> int -> int -> unit = "oc_event_set"
+external cset_fd : event_base -> event -> Unix.file_descr -> int -> unit = "oc_event_set"
+external cset_int : event_base -> event -> int -> int -> unit = "oc_event_set"
 
 let persist_flag = function true -> 0x10 | false -> 0
 
 (* Event set *)
-let set event fd etype persist (cb : event_callback) =
+let set base event fd etype persist (cb : event_callback) =
   let rec int_of_event_type_list flag = function
       h::t -> int_of_event_type_list (flag lor (int_of_event_type h)) t
     | [] -> flag
   in
   let flag = int_of_event_type_list (persist_flag persist) etype in
   Hashtbl.replace table (event_id event) cb;
-  cset_fd event fd flag
+  cset_fd base event fd flag
 
-let set_timer event persist (cb : unit -> unit) =
+let set_timer base event persist (cb : unit -> unit) =
   let flag = persist_flag persist in
   Hashtbl.replace table (event_id event) (fun _ _ -> cb ());
-  cset_int event (-1) flag
+  cset_int base event (-1) flag
 
-let set_signal event signal persist (cb : event_callback) =
+let set_signal base event signal persist (cb : event_callback) =
   let flag = (int_of_event_type SIGNAL) lor (persist_flag persist) in
   Hashtbl.replace table (event_id event) cb;
-  cset_int event signal flag
+  cset_int base event signal flag
 
 (* Add an event *)
-external add : event_base -> event -> float option -> unit = "oc_event_add"
+external add : event -> float option -> unit = "oc_event_add"
 
 (* Del an event  *)
 external cdel : event -> unit = "oc_event_del"
@@ -109,7 +109,7 @@ module Global = struct
 let base = init ()
 let init () = reinit base
 
-let add = add base
+let set = set base
 let dispatch () = dispatch base
 let loop = loop base
 

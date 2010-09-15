@@ -105,7 +105,7 @@ oc_create_event(value u)
   memset(ev, 0, sizeof(*ev));
 
   ve = caml_alloc_custom(&struct_event_ops, sizeof(struct event*), 0, 1);
-  *(struct event**) Data_custom_val(ve) = ev;
+  struct_event_val(ve) = ev;
 
   CAMLreturn(ve);
 }
@@ -125,30 +125,30 @@ oc_event_fd(value vevent)
 }
 
 CAMLprim value 
-oc_event_set(value vevent, value fd, value vevent_flag) 
+oc_event_set(value vbase, value vevent, value fd, value vevent_flag)
 { 
-  CAMLparam3(vevent, fd, vevent_flag); 
+  CAMLparam4(vbase, vevent, fd, vevent_flag);
 
   struct event *event = struct_event_val(vevent); 
 
   event_set(event, Int_val(fd), Int_val(vevent_flag), 
 	    &event_cb, event); 
 
+  if (0 != event_base_set(struct_event_base_val(vbase), event))
+  {
+    raise_error("event_set", "event_base_set");
+  }
+
   CAMLreturn(Val_unit); 
 } 
 
 CAMLprim value
-oc_event_add(value vbase, value vevent, value vfloat_option) 
+oc_event_add(value vevent, value vfloat_option)
 {
-  CAMLparam3(vbase, vevent, vfloat_option);
+  CAMLparam2(vevent, vfloat_option);
   struct event *event = struct_event_val(vevent);
   struct timeval timeval;
   struct timeval *tv = NULL;
-
-  if (0 != event_base_set(struct_event_base_val(vbase), event))
-  {
-    raise_error("event_add", "event_base_set");
-  }
 
   if (Is_some(vfloat_option)) {
     set_struct_timeval(&timeval, Field(vfloat_option, 0));
