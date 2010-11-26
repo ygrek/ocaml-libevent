@@ -37,7 +37,11 @@ let table = Hashtbl.create 0
 
 (* Called by the c-stub, locate, and call the ocaml callback *)
 let event_cb event_id fd etype =
-  (Hashtbl.find table event_id) fd (event_type_of_int etype)
+  let k =
+    try Hashtbl.find table event_id
+    with Not_found -> assert false
+  in
+  k fd (event_type_of_int etype)
 
 (* Create an event *)
 external create : unit -> event = "oc_create_event"
