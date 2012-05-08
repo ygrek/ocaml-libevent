@@ -196,9 +196,13 @@ oc_event_base_loop(value vbase, value vloop_flag)
 {
   CAMLparam2(vbase,vloop_flag);
   struct event_base* base = struct_event_base_val(vbase);
+  int flag = 0;
+  if (0 == Int_val(vloop_flag)) flag = EVLOOP_ONCE;
+  else if (1 == Int_val(vloop_flag)) flag = EVLOOP_NONBLOCK;
+  else caml_invalid_argument("loop");
 
   caml_enter_blocking_section();
-  if((-1 == event_base_loop(base,Int_val(vloop_flag)))) {
+  if((-1 == event_base_loop(base,flag))) {
     caml_leave_blocking_section();
     raise_error("event_loop", NULL);
   }
