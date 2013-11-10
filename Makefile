@@ -53,7 +53,7 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 ## Installation
 .PHONY: install
 install:
-	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME).a"; }; \
+	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(OBJECTS:.cmo=.cmx) $(NAME).a"; }; \
 	$(OCAMLFIND) install event META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
 
