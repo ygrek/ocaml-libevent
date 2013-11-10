@@ -174,21 +174,15 @@ oc_event_del(value vevent)
 }
 
 CAMLprim value
-oc_event_pending(value vevent, value vtype, value vfloat_option) 
+oc_event_pending(value vevent, value vtype)
 {
-  CAMLparam3(vevent, vtype, vfloat_option);
+  CAMLparam2(vevent, vtype);
   struct event *event = struct_event_val(vevent); 
-  struct timeval timeval;
-  struct timeval *tv = NULL;
-  
-  if Is_some(vfloat_option) {
-    set_struct_timeval(&timeval, Field(vfloat_option, 0));
-    tv = &timeval;
-  } 
+  int r = 0;
 
-  event_pending(event, Int_val(vtype), tv);
+  r = event_pending(event, Int_val(vtype), NULL);
 
-  CAMLreturn(Val_unit);
+  CAMLreturn(Val_bool(r));
 }
 
 CAMLprim value

@@ -16,13 +16,22 @@ let test_create_event () =
   let e2 = create () in
   "Events should be different" @? (e1 <> e2)
 
-(* Tests if pending can be called with and without the optional float *)
 let test_pending () =
-  todo "not implemented"
-(*
+  let base = init () in
   let e = create () in
-  ignore (pending e [])
-*)
+  let all = [READ;WRITE;SIGNAL;TIMEOUT] in
+  "Fresh event is not pending" @? (false = pending e all);
+  set_timer base e ~persist:true (fun () -> assert false);
+  "Still not pending" @? (false = pending e all);
+  add e (Some 120.);
+  "Pending on some type" @? (pending e all);
+  "Pending on TIMEOUT" @? (pending e [TIMEOUT]);
+  "Not pending on READ" @? (false = pending e [READ]);
+  "Not pending on empty flags" @? (false = pending e []);
+  del e;
+  free base;
+  "Not pending on any type" @? (false = pending e all);
+  ()
 
 (* Test eof on a read callback *)
 let test_read_eof () =

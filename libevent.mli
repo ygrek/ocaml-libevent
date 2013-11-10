@@ -77,8 +77,9 @@ val del : event -> unit
 (** Delete the event. After event was deleted it should be first 
     reinitialized with [set] before next [add]. *)
 
-(* Not finished *)
-(* val pending : event -> event_flags list -> bool  *)
+val pending : event -> event_flags list -> bool
+(** @return whether event is in the pending state for the given type of events,
+    i.e. whether it was [add]ed *)
 
 (** {5 Process Events} *)
 

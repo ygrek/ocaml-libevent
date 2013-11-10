@@ -61,12 +61,12 @@ external cset_int : event_base -> event -> int -> int -> unit = "oc_event_set"
 
 let persist_flag = function true -> 0x10 | false -> 0
 
+let rec int_of_event_type_list flag = function
+| h::t -> int_of_event_type_list (flag lor (int_of_event_type h)) t
+| [] -> flag
+
 (* Event set *)
 let set base event fd etype persist (cb : event_callback) =
-  let rec int_of_event_type_list flag = function
-      h::t -> int_of_event_type_list (flag lor (int_of_event_type h)) t
-    | [] -> flag
-  in
   let flag = int_of_event_type_list (persist_flag persist) etype in
   Hashtbl.replace table (event_id event) cb;
   cset_fd base event fd flag
@@ -90,9 +90,9 @@ let del event =
   Hashtbl.remove table (event_id event);
   cdel event
 
-(* *)
-(* Not fully implemented yet *)
-external pending : event -> event_flags list -> bool = "oc_event_pending"
+(* Check whether event is pending *)
+external cpending : event -> int -> bool = "oc_event_pending"
+let pending event flags = cpending event (int_of_event_type_list 0 flags)
 
 (* Process events *)
 external dispatch : event_base -> unit = "oc_event_base_dispatch"
