@@ -73,7 +73,7 @@ test: unittest
 testopt: unittest.opt
 	./unittest.opt
 unittest: all unittest.ml
-	$(OCAMLFIND) ocamlc -o unittest -package oUnit -cclib -L. -linkpkg \
+	$(OCAMLFIND) ocamlc -dllpath . -o unittest -package oUnit -cclib -L. -linkpkg \
 	$(ARCHIVE) unittest.ml
 unittest.opt: allopt unittest.ml
 	$(OCAMLFIND) ocamlopt -o unittest.opt -package oUnit -cclib -L. -linkpkg \
