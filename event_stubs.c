@@ -43,7 +43,7 @@ struct_event_finalize(value ve)
 {
   struct event *ev = struct_event_val(ve);
 
-  if (event_initialized(ev)) {
+  if (event_pending(ev,EV_TIMEOUT|EV_READ|EV_WRITE|EV_SIGNAL,NULL)) {
     event_del(ev);
   }
 
