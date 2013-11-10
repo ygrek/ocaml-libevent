@@ -8,36 +8,38 @@
 (* $Id: unittest.ml,v 1.3 2009-11-26 09:10:37 maas Exp $ *)
 
 open OUnit
-
-let create_event = Liboevent.create 
+open Libevent
 
 (* Tests the creation of new events *)
-let test_create_event _ =
-  let e1 = create_event () in
-  let e2 = create_event () in 
+let test_create_event () =
+  let e1 = create () in
+  let e2 = create () in
   "Events should be different" @? (e1 <> e2)
 
 (* Tests if pending can be called with and without the optional float *)
-let test_pending _ =
-  let e = create_event () in
-  ignore(Liboevent.pending e [])
+let test_pending () =
+  todo "not implemented"
+(*
+  let e = create () in
+  ignore (pending e [])
+*)
 
 (* Test eof on a read callback *)
-let test_read_eof _ =
+let test_read_eof () =
   let test_string = "This is a test string\n\n\n" in
   let buflen = 512 in
   let buf = String.create buflen in
   let read_count = ref 0 in 
-  let evt = create_event () in
+  let evt = create () in
   let read_cb fd event_type = 
     (* read data from the fd *)
     let len = Unix.read fd buf 0 buflen in
     (* when 0 bytes are read this is the EOF, and we are done. *)
     if len <> 0 then
-      begin
-	read_count := !read_count + len;
-	Liboevent.add evt None
-      end
+    begin
+      read_count := !read_count + len;
+      add evt None
+    end
   in
 
   (* Create a socket pair for testing *)
@@ -48,24 +50,24 @@ let test_read_eof _ =
   Unix.shutdown s1 Unix.SHUTDOWN_SEND;
 
   (* Setup the event *)
-  Liboevent.set evt s2 [Liboevent.READ] false read_cb;
-  Liboevent.add evt None;
-  Liboevent.dispatch ();
+  Global.set evt s2 [READ] false read_cb;
+  add evt None;
+  Global.dispatch ();
 
   (* Now its time to check some things *)
   assert_equal (String.length test_string) ! read_count
 
 (* This is not really a test (yet) *)
-let call_set _ =
+let call_set () =
   let do_nothing _ _ =
     ()
-  in  
-  let e1 = Liboevent.create () in
-  Liboevent.set e1 Unix.stderr [Liboevent.WRITE] false do_nothing;
-  Liboevent.set e1 Unix.stdout [Liboevent.WRITE] false do_nothing;
-  Liboevent.set e1 Unix.stdin [Liboevent.READ] false do_nothing;
-  Liboevent.add e1 (Some 0.1);
-  Liboevent.loop(Liboevent.ONCE)
+  in
+  let e1 = create () in
+  Global.set e1 Unix.stderr [WRITE] false do_nothing;
+  Global.set e1 Unix.stdout [WRITE] false do_nothing;
+  Global.set e1 Unix.stdin [READ] false do_nothing;
+  add e1 (Some 0.1);
+  Global.loop ONCE
  
 (* Construct the test suite *)
 let suite = "event" >::: 
@@ -76,5 +78,5 @@ let suite = "event" >:::
  ] 
 
 (* Run the tests in the test suite *)
-let _ = 
+let _ =
   run_test_tt_main suite
