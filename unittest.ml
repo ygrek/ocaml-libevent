@@ -68,13 +68,25 @@ let call_set () =
   Global.set e1 Unix.stdin [READ] false do_nothing;
   add e1 (Some 0.1);
   Global.loop ONCE
- 
+
+let test_free () =
+  let base = init () in
+  let ev = create () in
+  let called = ref 0 in
+  set_timer base ev ~persist:true (fun () -> incr called);
+  add ev (Some 1.);
+  loop base ONCE;
+  free base;
+  Gc.compact ();
+  "reached end with callback called once as expected" @? (!called = 1)
+
 (* Construct the test suite *)
 let suite = "event" >::: 
   ["create_event" >:: test_create_event;
    "test_pending" >:: test_pending;
    "test_read_eof" >:: test_read_eof;
    "call_set" >:: call_set;
+   "event_base_free" >:: test_free;
  ] 
 
 (* Run the tests in the test suite *)
