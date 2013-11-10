@@ -27,6 +27,9 @@ OCAMLMKLIB=ocamlmklib
 OCAMLDOC=ocamldoc
 OCAMLFIND=ocamlfind
 
+.PHONY: build
+build: all allopt
+
 .PHONY: all
 all: $(ARCHIVE)
 .PHONY: allopt
@@ -49,7 +52,7 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 
 ## Installation
 .PHONY: install
-install: all
+install:
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(NAME).a"; }; \
 	$(OCAMLFIND) install event META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
@@ -64,10 +67,10 @@ doc: FORCE
 	cd doc; $(OCAMLDOC) -html -I .. ../$(NAME).mli
 
 ## Testing
-.PHONY: testall
-testall: test testopt
 .PHONY: test
-test: unittest 	
+test: testbyte testopt
+.PHONY: testbyte
+testbyte: unittest
 	./unittest
 .PHONY: testopt
 testopt: unittest.opt

@@ -5,3 +5,5 @@
 *.lib
 *.obj
 depend
+unittest
+unittest.opt
