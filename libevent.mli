@@ -57,16 +57,16 @@ val set : event_base -> event ->
 
 val set_timer : event_base -> event -> persist:bool -> (unit -> unit) -> unit
 (** [set_timer events event persist callback] initializes timer. Flag [persist]
-    makes the timer periodic, until {!Libevent.del} is called. *)
+    makes the timer periodic until {!Libevent.del} is called. *)
 
 val set_signal : event_base -> event ->
   signal:int -> persist:bool -> event_callback -> unit
 (** [set_signal event signal persist callback] initializes the event. The
-    flag [persist] makes an event persistent unit {!Libevent.del} is
+    flag [persist] makes an event persistent until {!Libevent.del} is
     called. *)
 
 val add : event -> float option -> unit
-(** [add event timeout] adds the [event] and schedules the execution
+(** [add event timeout] makes the [event] pending - schedules the execution
     of the function specified with {!Libevent.set}, or in at least the
     time specified in the [timeout]. If [timeout] is [None], no
     timeout occures, and the function will only be called if a
@@ -80,6 +80,10 @@ val del : event -> unit
 val pending : event -> event_flags list -> bool
 (** @return whether event is in the pending state for the given type of events,
     i.e. whether it was [add]ed *)
+
+val activate : event -> event_flags list -> unit
+(** make an event active, so that the corresponding callback is run. Event may be in
+    pending or non-pending state *)
 
 (** {5 Process Events} *)
 

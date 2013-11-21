@@ -39,7 +39,7 @@ let table = Hashtbl.create 0
 let event_cb event_id fd etype =
   let k =
     try Hashtbl.find table event_id
-    with Not_found -> assert false
+    with Not_found -> (fun _ _ -> ()) (* it may happen, cf. activate *)
   in
   k fd (event_type_of_int etype)
 
@@ -93,6 +93,9 @@ let del event =
 (* Check whether event is pending *)
 external cpending : event -> int -> bool = "oc_event_pending"
 let pending event flags = cpending event (int_of_event_type_list 0 flags)
+
+external cactive : event -> int -> unit = "oc_event_active"
+let activate event flags = cactive event (int_of_event_type_list 0 flags)
 
 (* Process events *)
 external dispatch : event_base -> unit = "oc_event_base_dispatch"

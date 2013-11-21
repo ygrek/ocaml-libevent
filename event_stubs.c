@@ -238,6 +238,17 @@ oc_event_pending(value vevent, value vtype)
 }
 
 CAMLprim value
+oc_event_active(value vevent, value vtype)
+{
+  CAMLparam2(vevent, vtype);
+  struct event *event = struct_event_val(vevent);
+
+  event_active(event, Int_val(vtype), 0);
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value
 oc_event_base_loop(value vbase, value vloop_flag)
 {
   CAMLparam2(vbase,vloop_flag);
