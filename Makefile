@@ -1,5 +1,7 @@
 #
 
+VERSION=0.7.0
+
 # Change this to match your libevent installation.
 EVENT_LIB=-levent
 EVENT_LIBDIR=/usr/local/lib
@@ -52,7 +54,7 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 .PHONY: install
 install:
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(OBJECTS:.cmo=.cmx) $(NAME).a"; }; \
-	$(OCAMLFIND) install libevent META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
+	$(OCAMLFIND) install libevent -patch-version $(VERSION) META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
 
 .PHONY: uninstall
@@ -100,3 +102,11 @@ FORCE:
 	$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 include depend
+
+FULLNAME=ocaml-libevent-$(VERSION)
+
+.PHONY: release
+release:
+	git tag -a -m $(VERSION) v$(VERSION)
+	git archive --prefix=$(FULLNAME)/ v$(VERSION) | gzip > $(FULLNAME).tar.gz
+	gpg -a -b $(FULLNAME).tar.gz

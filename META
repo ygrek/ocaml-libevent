@@ -1,5 +1,4 @@
 name = "libevent"
-version = "0.7.0"
 description = "OCaml wrapper for libevent"
 requires = "unix"
 archive(byte) = "liboevent.cma"
