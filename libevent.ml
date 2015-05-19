@@ -1,19 +1,19 @@
 (***********************************************************************)
-(* The OcamlEvent library                                              *)
+(* The ocaml-event library                                             *)
 (*                                                                     *)
-(* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved. See  *) 
-(* LICENCE for details.                                                *)
+(* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved.      *)
+(* Copyright 2010 ygrek                                                *)
+(* See LICENCE for details.                                            *)
 (***********************************************************************)
 
-(* $Id: liboevent.ml,v 1.1 2009-11-26 08:49:02 maas Exp $ *)
 type event
 type event_base
 
 type event_flags =
-    TIMEOUT 
-  | READ 
+    TIMEOUT
+  | READ
   | WRITE
-  | SIGNAL 
+  | SIGNAL
 
 let int_of_event_type = function
     TIMEOUT -> 0x01
@@ -107,7 +107,7 @@ external init : unit -> event_base = "oc_event_base_init"
 external reinit : event_base -> unit = "oc_event_base_reinit"
 external free : event_base -> unit = "oc_event_base_free"
 
-let () = 
+let () =
   Callback.register "event_cb" event_cb
 
 (** Compatibility *)
@@ -121,4 +121,3 @@ let dispatch () = dispatch base
 let loop = loop base
 
 end
-

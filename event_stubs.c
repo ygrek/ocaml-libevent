@@ -1,11 +1,10 @@
 /************************************************************************/
-/* The OcamlEvent library                                               */
+/* The ocaml-event library                                              */
 /*                                                                      */
 /* Copyright 2002, 2003, 2004 Maas-Maarten Zeeman. All rights reserved. */
+/* Copyright 2010 ygrek                                                 */
 /* See LICENCE for details.                                             */
 /************************************************************************/
-
-/* $Id: event_stubs.c,v 1.2 2009-11-26 08:41:10 maas Exp $ */
 
 /* Stub code to interface Ocaml with libevent */
 
@@ -126,21 +125,21 @@ get_struct_event_base_val(value v)
   return base;
 }
 
-/* 
+/*
  * This callback calls the ocaml event callback, which will in turn
  * call the real ocaml callback.
  */
 static void
-event_cb(int fd, short type, void *arg) 
+event_cb(int fd, short type, void *arg)
 {
   caml_leave_blocking_section();
-  callback3(*event_cb_closure, 
+  callback3(*event_cb_closure,
 	    Val_long((long) arg), Val_int(fd), Val_int(type));
   caml_enter_blocking_section();
 }
 
 static void
-set_struct_timeval(struct timeval *tv, value vfloat) 
+set_struct_timeval(struct timeval *tv, value vfloat)
 {
   double timeout = Double_val(vfloat);
   tv->tv_sec = (int) timeout;
@@ -175,24 +174,24 @@ oc_event_fd(value vevent)
   CAMLreturn(Val_long(EVENT_FD(struct_event_val(vevent))));
 }
 
-CAMLprim value 
+CAMLprim value
 oc_event_set(value vbase, value vevent, value fd, value vevent_flag)
-{ 
+{
   CAMLparam4(vbase, vevent, fd, vevent_flag);
 
-  struct event *event = struct_event_val(vevent); 
+  struct event *event = struct_event_val(vevent);
   struct event_base* base = get_struct_event_base_val(vbase);
 
-  event_set(event, Int_val(fd), Int_val(vevent_flag), 
-	    &event_cb, event); 
+  event_set(event, Int_val(fd), Int_val(vevent_flag),
+	    &event_cb, event);
 
   if (0 != event_base_set(base, event))
   {
     raise_error("event_set", "event_base_set");
   }
 
-  CAMLreturn(Val_unit); 
-} 
+  CAMLreturn(Val_unit);
+}
 
 CAMLprim value
 oc_event_add(value vevent, value vfloat_option)
@@ -215,10 +214,10 @@ oc_event_add(value vevent, value vfloat_option)
 }
 
 CAMLprim value
-oc_event_del(value vevent) 
+oc_event_del(value vevent)
 {
   CAMLparam0();
-  struct event *event = struct_event_val(vevent); 
+  struct event *event = struct_event_val(vevent);
 
   event_del(event);
 
@@ -229,7 +228,7 @@ CAMLprim value
 oc_event_pending(value vevent, value vtype)
 {
   CAMLparam2(vevent, vtype);
-  struct event *event = struct_event_val(vevent); 
+  struct event *event = struct_event_val(vevent);
   int r = 0;
 
   r = event_pending(event, Int_val(vtype), NULL);
@@ -270,7 +269,7 @@ oc_event_base_loop(value vbase, value vloop_flag)
 
 
 CAMLprim value
-oc_event_base_dispatch(value vbase) 
+oc_event_base_dispatch(value vbase)
 {
   CAMLparam1(vbase);
   struct event_base* base = get_struct_event_base_val(vbase);

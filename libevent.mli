@@ -1,8 +1,9 @@
 (***********************************************************************)
-(* The Ocaml Libevent library                                          *)
+(* The ocaml-event library                                             *)
 (*                                                                     *)
-(* Copyright 2002, 2003, 2004 Maas-Maarten Zeeman. All rights          *) 
-(* reserved. See LICENCE for details.                                  *)       
+(* Copyright 2002, 2003, 2004 Maas-Maarten Zeeman. All rights reserved *)
+(* Copyright 2010 ygrek                                                *)
+(* See LICENCE for details.                                            *)
 (***********************************************************************)
 
 
@@ -14,12 +15,12 @@
 
     This library is a wrapper of the libevent API made by Nils
     Provos. For more information about this library see:
-    http://www.monkey.org/~provos/libevent. 
+    http://libevent.org
 
     Currently, libevent supports kqueue(2), select(2), poll(2) and
     epoll(4). Support for /dev/poll is planned.
 
-    @author Maas-Maarten Zeeman 
+    @author Maas-Maarten Zeeman
 *)
 
 (** The type of events *)
@@ -29,7 +30,7 @@ type event
 type event_base
 
 (** The possible event types *)
-type event_flags = 
+type event_flags =
     TIMEOUT (** A timeout occurred. *)
   | READ    (** A read is possible. *)
   | WRITE   (** A write operation is possible. *)
@@ -49,7 +50,7 @@ val fd : event -> Unix.file_descr
 val signal : event -> int
 (** [signal event] returns the signal associated with the event *)
 
-val set : event_base -> event -> 
+val set : event_base -> event ->
   Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> unit
 (** [set events event fd type persist callback] initializes the event for use with [events]. The
     flag [persist] makes an event persitent until {!Libevent.del} is
@@ -70,11 +71,11 @@ val add : event -> float option -> unit
     of the function specified with {!Libevent.set}, or in at least the
     time specified in the [timeout]. If [timeout] is [None], no
     timeout occures, and the function will only be called if a
-    matching event occurs on the file descriptor. Addition of the already 
+    matching event occurs on the file descriptor. Addition of the already
     scheduled (added) event will reschedule the timeout. *)
 
 val del : event -> unit
-(** Delete the event. After event was deleted it should be first 
+(** Delete the event. After event was deleted it should be first
     reinitialized with [set] before next [add]. *)
 
 val pending : event -> event_flags list -> bool
@@ -88,8 +89,8 @@ val activate : event -> event_flags list -> unit
 (** {5 Process Events} *)
 
 val dispatch : event_base -> unit
-(** In order to process events, an application needs to call dispatch. This 
- *  function only returns on error, and should replace the event core of the 
+(** In order to process events, an application needs to call dispatch. This
+ *  function only returns on error, and should replace the event core of the
  *  application
  *)
 
@@ -119,4 +120,3 @@ val dispatch : unit -> unit
 val loop : loop_flags -> unit
 
 end
-

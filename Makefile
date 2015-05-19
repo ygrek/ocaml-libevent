@@ -1,6 +1,4 @@
 #
-# $Id: Makefile,v 1.2 2009-11-26 08:49:02 maas Exp $ 
-#
 
 # Change this to match your libevent installation.
 EVENT_LIB=-levent
@@ -23,7 +21,7 @@ CFLAGS=-DFULL_UNROLL -Wall -O2 -I$(EVENT_INCDIR)
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLDEP=ocamldep
-OCAMLMKLIB=ocamlmklib 
+OCAMLMKLIB=ocamlmklib
 OCAMLDOC=ocamldoc
 OCAMLFIND=ocamlfind
 
@@ -36,7 +34,7 @@ all: $(ARCHIVE)
 allopt:  $(XARCHIVE)
 
 depend: *.c *.ml *.mli
-	gcc -MM *.c > depend	
+	gcc -MM *.c > depend
 	$(OCAMLDEP) *.mli *.ml >> depend
 
 ## Library creation
@@ -64,7 +62,7 @@ uninstall:
 ## Documentation
 .PHONY: doc
 doc: FORCE
-	cd doc; $(OCAMLDOC) -html -I .. ../$(NAME).mli
+	cd doc; $(OCAMLDOC) -html -I .. ../*.mli
 
 ## Testing
 .PHONY: test

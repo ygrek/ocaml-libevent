@@ -5,8 +5,6 @@
 (* LICENCE for details.                                                *)
 (***********************************************************************)
 
-(* $Id: unittest.ml,v 1.3 2009-11-26 09:10:37 maas Exp $ *)
-
 open OUnit
 open Libevent
 
