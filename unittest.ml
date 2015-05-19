@@ -1,7 +1,7 @@
 (***********************************************************************)
-(* The OcamlEvent library                                              *)
+(* The ocaml-libevent library                                          *)
 (*                                                                     *)
-(* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved. See  *) 
+(* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved. See  *)
 (* LICENCE for details.                                                *)
 (***********************************************************************)
 

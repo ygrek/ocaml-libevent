@@ -52,12 +52,12 @@ $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
 .PHONY: install
 install:
 	{ test ! -f $(XARCHIVE) || extra="$(XARCHIVE) $(OBJECTS:.cmo=.cmx) $(NAME).a"; }; \
-	$(OCAMLFIND) install event META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
+	$(OCAMLFIND) install libevent META $(OBJECTS:.cmo=.cmi) $(OBJECTS:.cmo=.mli) $(ARCHIVE) \
 	dll$(CARCHIVE_NAME).so lib$(CARCHIVE_NAME).a $$extra
 
 .PHONY: uninstall
 uninstall:
-	$(OCAMLFIND) remove event
+	$(OCAMLFIND) remove libevent
 
 ## Documentation
 .PHONY: doc

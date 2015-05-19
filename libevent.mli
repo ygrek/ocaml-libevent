@@ -1,5 +1,5 @@
 (***********************************************************************)
-(* The ocaml-event library                                             *)
+(* The ocaml-libevent library                                          *)
 (*                                                                     *)
 (* Copyright 2002, 2003, 2004 Maas-Maarten Zeeman. All rights reserved *)
 (* Copyright 2010 ygrek                                                *)
@@ -7,9 +7,9 @@
 (***********************************************************************)
 
 
-(** The Ocaml Event library provides an interface to the event API.
+(** The ocaml-libevent library provides an interface to the libevent API.
 
-    The event API provides a mechanism to execute a function when a
+    The libevent API provides a mechanism to execute a function when a
     specific event on a file descriptor occurs or after a given time
     has passed.
 

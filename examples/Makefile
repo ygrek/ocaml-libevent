@@ -1,5 +1,5 @@
 #
-# Simple makefile to build the example programs. The event library
+# Simple makefile to build the example programs. The libevent library
 # must be installed first.
 #
 

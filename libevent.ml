@@ -1,5 +1,5 @@
 (***********************************************************************)
-(* The ocaml-event library                                             *)
+(* The ocaml-libevent library                                          *)
 (*                                                                     *)
 (* Copyright 2002, 2003 Maas-Maarten Zeeman. All rights reserved.      *)
 (* Copyright 2010 ygrek                                                *)

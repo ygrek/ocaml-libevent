@@ -1,8 +1,8 @@
-		       The ocaml-event library
+		       The ocaml-libevent library
 
 Overview
 
-  ocaml-event is a wrapper for the libevent API. The libevent API
+  ocaml-libevent is a wrapper for the libevent API. The libevent API
   provides a mechanism to execute a callback function when a specific
   event occurs on a file descriptor or after a timeout has been
   reached. Furthermore, libevent also support callbacks due to signals
@@ -43,4 +43,7 @@ Documentation
 
 References
 
-  libevent::<http://libevent.org>
+  Homepage http://github.com/ygrek/ocaml-libevent
+  Originally at http://mmzeeman.home.xs4all.nl/ocaml/
+
+  libevent http://libevent.org
