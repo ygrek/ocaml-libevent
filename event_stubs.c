@@ -40,11 +40,12 @@ struct_event_finalize(value ve)
 {
   struct event *ev = struct_event_val(ve);
 
-  if (event_pending(ev,EV_TIMEOUT|EV_READ|EV_WRITE|EV_SIGNAL,NULL)) {
+  if (NULL != ev)
+  {
     event_del(ev);
+    caml_stat_free(ev);
+    struct_event_val(ve) = NULL;
   }
-
-  caml_stat_free(struct_event_val(ve));
 }
 
 static int
