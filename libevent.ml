@@ -100,8 +100,9 @@ let activate event flags = cactive event (int_of_event_type_list 0 flags)
 (* Process events *)
 external dispatch : event_base -> unit = "oc_event_base_dispatch"
 
-type loop_flags = ONCE | NONBLOCK
-external loop : event_base -> loop_flags -> unit = "oc_event_base_loop"
+type loop_flag = ONCE | NONBLOCK
+external loops : event_base -> loop_flag list -> unit = "oc_event_base_loop"
+let loop events flag = loops events [flag]
 
 external init : unit -> event_base = "oc_event_base_init"
 external reinit : event_base -> unit = "oc_event_base_reinit"
@@ -119,5 +120,6 @@ let init () = reinit base
 let set = set base
 let dispatch () = dispatch base
 let loop = loop base
+let loops = loops base
 
 end

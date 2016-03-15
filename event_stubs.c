@@ -188,7 +188,7 @@ oc_event_set(value vbase, value vevent, value fd, value vevent_flag)
 
   if (0 != event_base_set(base, event))
   {
-    raise_error("event_set", "event_base_set");
+    raise_error("event_base_set", NULL);
   }
 
   CAMLreturn(Val_unit);
@@ -208,7 +208,7 @@ oc_event_add(value vevent, value vfloat_option)
   }
 
   if (0 != event_add(event, tv)) {
-    raise_error("event_add", "event_add");
+    raise_error("event_add", NULL);
   }
 
   CAMLreturn(Val_unit);
@@ -249,19 +249,24 @@ oc_event_active(value vevent, value vtype)
 }
 
 CAMLprim value
-oc_event_base_loop(value vbase, value vloop_flag)
+oc_event_base_loop(value vbase, value vflags)
 {
-  CAMLparam2(vbase,vloop_flag);
+  CAMLparam2(vbase,vflags);
   struct event_base* base = get_struct_event_base_val(vbase);
-  int flag = 0;
-  if (0 == Int_val(vloop_flag)) flag = EVLOOP_ONCE;
-  else if (1 == Int_val(vloop_flag)) flag = EVLOOP_NONBLOCK;
-  else caml_invalid_argument("loop");
+  int flags = 0;
+  while (vflags != Val_emptylist)
+  {
+    if (0 == Int_val(Field(vflags,0))) flags |= EVLOOP_ONCE;
+    else if (1 == Int_val(Field(vflags,0))) flags |= EVLOOP_NONBLOCK;
+    else caml_invalid_argument("Libevent.loops");
+
+    vflags = Field(vflags,1);
+  }
 
   caml_enter_blocking_section();
-  if((-1 == event_base_loop(base,flag))) {
+  if((-1 == event_base_loop(base,flags))) {
     caml_leave_blocking_section();
-    raise_error("event_loop", NULL);
+    raise_error("event_base_loop", NULL);
   }
   caml_leave_blocking_section();
 
@@ -278,7 +283,7 @@ oc_event_base_dispatch(value vbase)
   caml_enter_blocking_section();
   if((-1 == event_base_dispatch(base))) {
     caml_leave_blocking_section();
-    raise_error("event_dispatch", NULL);
+    raise_error("event_base_dispatch", NULL);
   }
   caml_leave_blocking_section();
 

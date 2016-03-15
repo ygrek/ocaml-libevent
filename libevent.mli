@@ -94,10 +94,11 @@ val dispatch : event_base -> unit
  *  application
  *)
 
-type loop_flags =
-    ONCE
-  | NONBLOCK
-val loop : event_base -> loop_flags -> unit
+type loop_flag = ONCE | NONBLOCK
+val loop : event_base -> loop_flag -> unit
+(** Obsolete, use [loops] *)
+
+val loops : event_base -> loop_flag list -> unit
 (** Provides an interface for single pass execution of pending events *)
 
 val init : unit -> event_base
@@ -117,6 +118,7 @@ val init : unit -> unit
 
 val set : event -> Unix.file_descr -> event_flags list -> persist:bool -> event_callback -> unit
 val dispatch : unit -> unit
-val loop : loop_flags -> unit
+val loop : loop_flag -> unit
+val loops : loop_flag list -> unit
 
 end
