@@ -27,8 +27,9 @@ let test_pending () =
   "Not pending on READ" @? (false = pending e [READ]);
   "Not pending on empty flags" @? (false = pending e []);
   del e;
-  free base;
   "Not pending on any type" @? (false = pending e all);
+  free base;
+  (** cannot access events after base is freed. TODO add safety test in stubs? *)
   ()
 
 (* Test eof on a read callback *)
