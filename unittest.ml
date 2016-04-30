@@ -37,9 +37,9 @@ let test_read_eof () =
   let test_string = "This is a test string\n\n\n" in
   let buflen = 512 in
   let buf = String.create buflen in
-  let read_count = ref 0 in 
+  let read_count = ref 0 in
   let evt = create () in
-  let read_cb fd event_type = 
+  let read_cb fd event_type =
     (* read data from the fd *)
     let len = Unix.read fd buf 0 buflen in
     (* when 0 bytes are read this is the EOF, and we are done. *)
@@ -84,18 +84,20 @@ let test_free () =
   set_timer base ev ~persist:true (fun () -> incr called);
   add ev (Some 1.);
   loop base ONCE;
+  "callback called once as expected" @? (!called = 1);
+  Gc.compact (); (* make sure all events are gone before freeing base *)
   free base;
   Gc.compact ();
   "reached end with callback called once as expected" @? (!called = 1)
 
 (* Construct the test suite *)
-let suite = "event" >::: 
+let suite = "event" >:::
   ["create_event" >:: test_create_event;
    "test_pending" >:: test_pending;
    "test_read_eof" >:: test_read_eof;
    "call_set" >:: call_set;
    "event_base_free" >:: test_free;
- ] 
+ ]
 
 (* Run the tests in the test suite *)
 let _ =

@@ -108,7 +108,9 @@ val reinit : event_base -> unit
 (** Reinitialize event base (use after fork) *)
 
 val free : event_base -> unit
-(** destroy event base *)
+(** Destroy event base.
+
+  NB this is unsafe (can crash) if there are any events alive referencing this base *)
 
 (** Compatibility *)
 module Global : sig
