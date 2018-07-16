@@ -36,7 +36,7 @@ let test_pending () =
 let test_read_eof () =
   let test_string = "This is a test string\n\n\n" in
   let buflen = 512 in
-  let buf = String.create buflen in
+  let buf = Bytes.create buflen in
   let read_count = ref 0 in
   let evt = create () in
   let read_cb fd event_type =
@@ -52,7 +52,7 @@ let test_read_eof () =
 
   (* Create a socket pair for testing *)
   let s1, s2 = Unix.socketpair Unix.PF_UNIX Unix.SOCK_STREAM 0 in
-  let _ = Unix.write s1 test_string 0 (String.length test_string) in
+  let _ = Unix.write_substring s1 test_string 0 (String.length test_string) in
 
   (* A shutdown_send will cause an EOF on the reading end *)
   Unix.shutdown s1 Unix.SHUTDOWN_SEND;
