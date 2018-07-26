@@ -30,9 +30,6 @@ Installation
   - (Optional) To test the library, do "make test". This requires the
     installation of OUnit.
 
-  - (Optional) To test the library compiled with ocamlopt and ocamlc,
-    do "make testall". This requires the installation of OUnit.
-
   - Become super-user if necessary and do "make install".  This
     installs the library in the standard Objective Caml library
     directory.
