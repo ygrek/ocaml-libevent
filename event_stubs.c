@@ -23,11 +23,13 @@
 #include <caml/signals.h>
 
 #define struct_event_val(v) (*(struct event**) Data_custom_val(v))
+#ifndef Is_some
 #define Is_some(v) (Is_block(v))
+#endif
 
 #define struct_event_base_val(v) (*(struct event_base**) Data_custom_val(v))
 
-static value * event_cb_closure = NULL;
+static value const * event_cb_closure = NULL;
 
 /* FIXME use dedicated exception */
 static void raise_error(char const* str, char const* arg)

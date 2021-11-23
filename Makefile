@@ -2,10 +2,8 @@
 
 VERSION=0.8.1
 
-# Change this to match your libevent installation.
-EVENT_LIB=-levent
-EVENT_LIBDIR=/usr/local/lib
-EVENT_INCDIR=/usr/local/include
+EVENT_LIBS:=$(shell pkg-config --libs libevent || printf "%s" "-levent")
+EVENT_CFLAGS:=$(shell pkg-config --cflags libevent)
 
 NAME=liboevent
 OBJECTS=libevent.cmo
@@ -18,7 +16,7 @@ CARCHIVE_NAME=mloevent
 CARCHIVE=lib$(CARCHIVE_NAME).a
 
 # Flags for the C compiler.
-CFLAGS=-DFULL_UNROLL -Wall -O2 -I$(EVENT_INCDIR)
+CFLAGS:=$(CFLAGS) -Wall $(EVENT_CFLAGS)
 
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
@@ -41,14 +39,11 @@ depend: *.c *.ml *.mli
 
 ## Library creation
 $(CARCHIVE): $(C_OBJECTS)
-	$(OCAMLMKLIB) -oc $(CARCHIVE_NAME) $(C_OBJECTS) \
-	-L$(EVENT_LIBDIR) $(EVENT_LIB)
+	$(OCAMLMKLIB) -oc $(CARCHIVE_NAME) $(C_OBJECTS) $(EVENT_LIBS)
 $(ARCHIVE): $(CARCHIVE) $(OBJECTS)
-	$(OCAMLMKLIB) -o $(NAME) $(OBJECTS) -oc $(CARCHIVE_NAME) \
-	-L$(EVENT_LIBDIR) $(EVENT_LIB)
+	$(OCAMLMKLIB) -o $(NAME) $(OBJECTS) -oc $(CARCHIVE_NAME) $(EVENT_LIBS)
 $(XARCHIVE): $(CARCHIVE) $(XOBJECTS)
-	$(OCAMLMKLIB) -o $(NAME) $(XOBJECTS) -oc $(CARCHIVE_NAME) \
-	-L$(EVENT_LIBDIR) $(EVENT_LIB)
+	$(OCAMLMKLIB) -o $(NAME) $(XOBJECTS) -oc $(CARCHIVE_NAME) $(EVENT_LIBS)
 
 ## Installation
 .PHONY: install
