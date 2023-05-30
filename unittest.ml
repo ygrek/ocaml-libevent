@@ -58,7 +58,7 @@ let test_read_eof () =
   Unix.shutdown s1 Unix.SHUTDOWN_SEND;
 
   (* Setup the event *)
-  Global.set evt s2 [READ] false read_cb;
+  Global.set evt s2 [READ] ~persist:false read_cb;
   add evt None;
   Global.dispatch ();
 
@@ -71,9 +71,9 @@ let call_set () =
     ()
   in
   let e1 = create () in
-  Global.set e1 Unix.stderr [WRITE] false do_nothing;
-  Global.set e1 Unix.stdout [WRITE] false do_nothing;
-  Global.set e1 Unix.stdin [READ] false do_nothing;
+  Global.set e1 Unix.stderr [WRITE] ~persist:false do_nothing;
+  Global.set e1 Unix.stdout [WRITE] ~persist:false do_nothing;
+  Global.set e1 Unix.stdin [READ] ~persist:false do_nothing;
   add e1 (Some 0.1);
   Global.loop ONCE
 

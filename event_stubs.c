@@ -136,7 +136,7 @@ static void
 event_cb(int fd, short type, void *arg)
 {
   caml_leave_blocking_section();
-  callback3(*event_cb_closure,
+  caml_callback3(*event_cb_closure,
 	    Val_long((long) arg), Val_int(fd), Val_int(type));
   caml_enter_blocking_section();
 }
@@ -306,7 +306,7 @@ oc_event_base_init(value unit)
   if(event_cb_closure == NULL) {
     event_cb_closure = caml_named_value("event_cb");
     if(event_cb_closure == NULL) {
-      invalid_argument("Callback event_cb not initialized.");
+      caml_invalid_argument("Callback event_cb not initialized.");
     }
   }
 
