@@ -18,8 +18,8 @@ CARCHIVE=lib$(CARCHIVE_NAME).a
 # Flags for the C compiler.
 CFLAGS:=$(CFLAGS) -Wall $(EVENT_CFLAGS)
 
-OCAMLC=ocamlc -I +unix
-OCAMLOPT=ocamlopt -I +unix
+OCAMLC=ocamlfind ocamlc -package unix
+OCAMLOPT=ocamlfind ocamlopt -package unix
 OCAMLDEP=ocamldep
 OCAMLMKLIB=ocamlmklib
 OCAMLDOC=ocamldoc
