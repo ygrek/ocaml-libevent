@@ -1,6 +1,6 @@
 #
 
-VERSION=0.8.1
+VERSION=0.9.0
 
 EVENT_LIBS:=$(shell pkg-config --libs libevent || printf "%s" "-levent")
 EVENT_CFLAGS:=$(shell pkg-config --cflags libevent)
@@ -104,4 +104,4 @@ FULLNAME=ocaml-libevent-$(VERSION)
 release:
 	git tag -a -m $(VERSION) v$(VERSION)
 	git archive --prefix=$(FULLNAME)/ v$(VERSION) | gzip > $(FULLNAME).tar.gz
-	gpg -a -b $(FULLNAME).tar.gz
+	gpg -a -b $(FULLNAME).tar.gz > $(FULLNAME).tar.gz.asc
