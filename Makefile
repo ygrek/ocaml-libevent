@@ -34,7 +34,7 @@ all: $(ARCHIVE)
 allopt:  $(XARCHIVE)
 
 depend: *.c *.ml *.mli
-	gcc -I $(shell $(OCAMLFIND) query stdlib) -MM *.c > depend
+	$(CC) -I $(shell $(OCAMLFIND) query stdlib) -MM *.c > depend
 	$(OCAMLDEP) *.mli *.ml >> depend
 
 ## Library creation
